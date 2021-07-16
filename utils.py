@@ -54,4 +54,4 @@ def deserialize_resources(resources_str: str) -> List[Resource]:
 
 def get_valid_filename(s: str) -> str:
     s = str(s).strip()
-    return re.sub(r'(?u)[^-\w.\[\]()]', '', s)
+    return re.sub(r'(?u)[^-\w.\[\]() ]', '', s)
