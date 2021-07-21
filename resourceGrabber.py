@@ -27,7 +27,7 @@ def get_last_page(soup: BeautifulSoup) -> int:
 
 
 def analyze_article(soup: BeautifulSoup) -> Union[Resource, None]:
-    """Handles scraping articles"""
+    """Handles scraping articles, returns a resource"""
     # gets download link
     players = soup.select("div.player.player-inline.js-player", limit=1)
     if len(players) == 0:
@@ -47,7 +47,16 @@ def analyze_article(soup: BeautifulSoup) -> Union[Resource, None]:
         date = info[0].string
     date_content = date.string
 
-    return Resource(header_content, date_content, source)
+    # gets thumbnail
+    img = soup.select("figure.figure > img", limit=1)[0]
+    thumbnail = img.get("src")
+
+    # gets description
+    # sometimes more then one story body exists, but the last one is always the true story body
+    desc_div = soup.select("div.mod_body > div.story_body")[-1]
+    description = desc_div.text
+
+    return Resource(header_content, date_content, thumbnail, description, source)
 
 
 def get_page_soup(page: int) -> Tuple[int, BeautifulSoup]:
@@ -89,7 +98,6 @@ def thread_worker(page: int) -> None:
 # Starts scraping in multiple threads
 with concurrent.futures.ThreadPoolExecutor(max_workers=16) as executor:
     executor.map(thread_worker, range(pages+1))
-
 
 # Saves all scraped information to a csv like format file
 with open("out.csv", "w") as f:

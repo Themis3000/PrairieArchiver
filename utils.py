@@ -3,6 +3,7 @@ import re
 from bs4 import BeautifulSoup
 from dataclasses import dataclass
 from typing import Tuple, List, Iterator
+from datetime import datetime
 
 session = requests.session()  # a single session is used for all requests
 
@@ -29,13 +30,19 @@ class Resource:
     """Class for keeping track of audio resources"""
     title: str
     date: str
+    thumbnail: str
+    desc: str
     url: str
+
+    def get_formatted_date(self) -> str:
+        dt = datetime.strptime(self.date, "%B %d, %Y")
+        return dt.strftime("%Y-%m-%d")  # YYYY-MM-DD format
 
 
 def serialize_resources(resources: List[Resource]) -> Iterator[str]:
     """serializes a list of resources into a csv like format"""
     for resource in resources:
-        yield " /||\\ ".join([resource.title, resource.date, resource.url])
+        yield " /||\\ ".join([resource.title, resource.date, resource.thumbnail, resource.desc, resource.url])
 
 
 def deserialize_resources(resources_str: str) -> List[Resource]:
