@@ -45,16 +45,11 @@ def serialize_resources(resources: List[Resource]) -> Iterator[str]:
         yield " /||\\ ".join([resource.title, resource.date, resource.thumbnail, resource.desc, resource.url])
 
 
-def deserialize_resources(resources_str: str) -> List[Resource]:
-    """deserializes a csv like format into a list of resources"""
-    resources = []
-    for line in resources_str.split("\n"):
+def deserialize_resources(resource_iter: Iterator[str]) -> Iterator[Resource]:
+    """deserializes a csv like format into resources"""
+    for line in resource_iter:
         elements = line.split(" /||\\ ")
-        if len(elements) != 3:
-            continue
-        resource = Resource(*elements)
-        resources.append(resource)
-    return resources
+        yield Resource(*elements)
 
 
 def get_valid_filename(s: str) -> str:

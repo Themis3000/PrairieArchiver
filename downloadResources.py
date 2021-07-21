@@ -5,7 +5,8 @@ from utils import deserialize_resources, Resource, get_valid_filename
 
 # Reads scraping data
 with open("out.csv", "r") as f:
-    resources = deserialize_resources(f.read())
+    resource_iter = deserialize_resources(f)
+    resources = [resource for resource in resource_iter]
 
 # Creates completed log file is it doesn't already exist
 if not Path("./completed.txt").is_file():
@@ -49,5 +50,5 @@ def download_if_new(resource: Resource) -> None:
 
 
 # uses multiple threads in order to download more then one file at once
-with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
+with concurrent.futures.ThreadPoolExecutor(max_workers=8) as executor:
     executor.map(download_if_new, resources)
