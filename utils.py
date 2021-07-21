@@ -2,7 +2,7 @@ import requests
 import re
 from bs4 import BeautifulSoup
 from dataclasses import dataclass
-from typing import Tuple, List
+from typing import Tuple, List, Iterator
 
 session = requests.session()  # a single session is used for all requests
 
@@ -32,12 +32,10 @@ class Resource:
     url: str
 
 
-def serialize_resources(resources: List[Resource]) -> str:
+def serialize_resources(resources: List[Resource]) -> Iterator[str]:
     """serializes a list of resources into a csv like format"""
-    out_str = ""
     for resource in resources:
-        out_str += f"{resource.title} /||\\ {resource.date} /||\\ {resource.url}\n"
-    return out_str
+        yield " /||\\ ".join([resource.title, resource.date, resource.url])
 
 
 def deserialize_resources(resources_str: str) -> List[Resource]:
@@ -53,5 +51,6 @@ def deserialize_resources(resources_str: str) -> List[Resource]:
 
 
 def get_valid_filename(s: str) -> str:
+    """Returns a valid filename given an input. Removes any characters unable to be in a filename"""
     s = str(s).strip()
     return re.sub(r'(?u)[^-\w.\[\]() ]', '', s)

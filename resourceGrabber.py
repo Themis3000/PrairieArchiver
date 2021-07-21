@@ -93,5 +93,6 @@ with concurrent.futures.ThreadPoolExecutor(max_workers=16) as executor:
 
 # Saves all scraped information to a csv like format file
 with open("out.csv", "w") as f:
-    serialized_string = serialize_resources(resources)
-    f.write(serialized_string)
+    serialized_resources = serialize_resources(resources)
+    for resource in serialized_resources:
+        f.write(resource + "\n")
