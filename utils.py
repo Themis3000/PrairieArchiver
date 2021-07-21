@@ -34,7 +34,8 @@ class Resource:
     desc: str
     url: str
 
-    def get_formatted_date(self) -> str:
+    @property
+    def formatted_date(self) -> str:
         dt = datetime.strptime(self.date, "%B %d, %Y")
         return dt.strftime("%Y-%m-%d")  # YYYY-MM-DD format
 
@@ -48,7 +49,7 @@ def serialize_resources(resources: List[Resource]) -> Iterator[str]:
 def deserialize_resources(resource_iter: Iterator[str]) -> Iterator[Resource]:
     """deserializes a csv like format into resources"""
     for line in resource_iter:
-        elements = line.split(" /||\\ ")
+        elements = line[:-1].split(" /||\\ ")
         yield Resource(*elements)
 
 

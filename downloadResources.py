@@ -23,7 +23,7 @@ session = requests.session()
 
 def download_resource(resource: Resource) -> None:
     """Downloads a single mp3 file and logs it"""
-    filename = get_valid_filename(f"{resource.title} [{resource.date}]")
+    filename = get_valid_filename(f"{resource.formatted_date}-{resource.title}")
     full_filename = f"./downloads/{filename}.mp3"
     with session.get(resource.url, stream=True) as r:
         r.raise_for_status()
