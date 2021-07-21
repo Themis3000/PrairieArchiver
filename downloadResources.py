@@ -1,6 +1,8 @@
 import requests
 import concurrent.futures
 from pathlib import Path
+import eyed3
+from eyed3.id3.apple import PCST, PCST_FID, WFED, WFED_FID, TDES, TDES_FID
 from utils import deserialize_resources, Resource, get_valid_filename
 
 # Reads scraping data
@@ -31,7 +33,29 @@ def download_resource(resource: Resource) -> None:
             # Higher chunk size is used in order to achieve better write performance while threaded
             for chunk in r.iter_content(chunk_size=1048576 * 8):  # Chunk size of 8 mebibytes
                 f.write(chunk)
+    set_metadata(full_filename, resource)
     log_download(resource)
+
+
+def set_metadata(path: str, resource: Resource) -> None:
+    """Adds metadata to audio file"""
+    # Loads image
+    image = session.get(resource.thumbnail).content
+
+    # Loads audio file
+    audio_file = eyed3.load(path)
+    if audio_file.tag is None:
+        audio_file.initTag()
+
+    # Sets tags
+    audio_file.tag.images.set(3, image, 'image/jpeg')
+    audio_file.tag.title = resource.title
+    audio_file.tag.album = "A Prairie Home Companion"
+    audio_file.tag.comment = resource.desc
+    audio_file.tag.frame_set[PCST_FID] = PCST()
+    audio_file.tag.frame_set[WFED_FID] = WFED(resource.url)
+    audio_file.tag.frame_set[TDES_FID] = TDES(resource.desc)
+    audio_file.tag.save()
 
 
 def log_download(resource: Resource) -> None:
