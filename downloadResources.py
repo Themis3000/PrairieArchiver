@@ -52,9 +52,11 @@ def set_metadata(path: str, resource: Resource) -> None:
     audio_file.tag.title = resource.title
     audio_file.tag.album = "A Prairie Home Companion"
     audio_file.tag.comments.set(resource.desc)
-    audio_file.tag.frame_set[PCST_FID] = PCST()
-    audio_file.tag.frame_set[WFED_FID] = WFED(resource.url)
-    audio_file.tag.frame_set[TDES_FID] = TDES(resource.desc)
+    # Sets apple specific tags
+    audio_file.tag.frame_set[PCST_FID] = PCST()  # Marks self as podcast
+    audio_file.tag.frame_set[WFED_FID] = WFED(resource.url)  # Identifies source of the podcast
+    audio_file.tag.frame_set[TDES_FID] = TDES(resource.desc)  # Adds description
+
     audio_file.tag.save()
 
 
