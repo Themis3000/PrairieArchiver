@@ -1,3 +1,5 @@
+"""Scrapes webpages and finds resource downloads & info"""
+
 from typing import List, Tuple, Union
 from bs4 import BeautifulSoup
 import concurrent.futures
@@ -97,10 +99,9 @@ def thread_worker(page: int) -> None:
 
 # Starts scraping in multiple threads
 with concurrent.futures.ThreadPoolExecutor(max_workers=16) as executor:
-    executor.map(thread_worker, range(pages+1))
+    executor.map(thread_worker, range(1, pages+1))
 
 # Saves all scraped information to a csv like format file
-with open("out.csv", "w") as f:
+with open("out.csv", "w", encoding="utf-8") as f:
     serialized_resources = serialize_resources(resources)
-    for resource in serialized_resources:
-        f.write(resource + "\n")
+    f.writelines(serialized_resources)

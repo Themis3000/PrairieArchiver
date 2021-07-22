@@ -4,8 +4,21 @@ from bs4 import BeautifulSoup
 from dataclasses import dataclass
 from typing import Tuple, List, Iterator
 from datetime import datetime
+from requests.adapters import HTTPAdapter
+from requests.packages.urllib3.util.retry import Retry
 
 session = requests.session()  # a single session is used for all requests
+
+retry_strategy = Retry(
+    total=10,
+    backoff_factor=20,
+    status_forcelist=[429, 500, 502, 503, 504],
+    method_whitelist=["HEAD", "GET", "OPTIONS"]
+)
+
+adapter = HTTPAdapter(max_retries=retry_strategy)
+session.mount("https://", adapter)
+session.mount("http://", adapter)
 
 
 def get_soup(url: str) -> Tuple[int, BeautifulSoup]:
@@ -43,7 +56,11 @@ class Resource:
 def serialize_resources(resources: List[Resource]) -> Iterator[str]:
     """serializes a list of resources into a csv like format"""
     for resource in resources:
-        yield " /||\\ ".join([resource.title, resource.date, resource.thumbnail, resource.desc, resource.url])
+        yield " /||\\ ".join([resource.title,
+                              resource.date,
+                              resource.thumbnail,
+                              get_valid_filename(resource.desc),
+                              resource.url]) + "\n"
 
 
 def deserialize_resources(resource_iter: Iterator[str]) -> Iterator[Resource]:
@@ -56,4 +73,4 @@ def deserialize_resources(resource_iter: Iterator[str]) -> Iterator[Resource]:
 def get_valid_filename(s: str) -> str:
     """Returns a valid filename given an input. Removes any characters unable to be in a filename"""
     s = str(s).strip()
-    return re.sub(r'(?u)[^-\w.\[\]() ]', '', s)
+    return re.sub(r'(?u)[^-\w.\[\]()\' ]', '', s)

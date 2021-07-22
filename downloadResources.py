@@ -1,9 +1,10 @@
-import requests
+"""Downloads scraped resources"""
+
 import concurrent.futures
 from pathlib import Path
 import eyed3
 from eyed3.id3.apple import PCST, PCST_FID, WFED, WFED_FID, TDES, TDES_FID
-from utils import deserialize_resources, Resource, get_valid_filename
+from utils import deserialize_resources, Resource, get_valid_filename, session
 
 # Reads scraping data
 with open("out.csv", "r") as f:
@@ -17,10 +18,6 @@ if not Path("./completed.txt").is_file():
 # Reads the created log file and creates a list of all the links already downloaded
 with open("completed.txt", "r") as f:
     downloaded = f.read().splitlines()
-
-
-# create a requests session so that all requests are made under the same tcp connection.
-session = requests.session()
 
 
 def download_resource(resource: Resource) -> None:
